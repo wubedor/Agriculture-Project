@@ -14,14 +14,11 @@ import {
 // ==========================================
 // API URL
 // ==========================================
-// On your computer this can fall back to localhost.
-// On your phone it will use the value in .env:
-// VITE_API_URL=http://192.168.100.5:5000/api
-// ==========================================
 
-const API_URL =
+const API_URL = (
   import.meta.env.VITE_API_URL ||
-  "http://localhost:5000/api";
+  "http://localhost:5000/api"
+).replace(/\/$/, "");
 
 export default function Register({
   onRegister,
@@ -89,7 +86,6 @@ export default function Register({
       setError(
         "Password must be at least 6 characters."
       );
-
       return;
     }
 
@@ -108,9 +104,13 @@ export default function Register({
       // ========================================
       // REGISTER USER
       // ========================================
+      // IMPORTANT:
+      // Do NOT use localhost directly here.
+      // API_URL comes from VITE_API_URL.
+      // ========================================
 
       const response = await fetch(
-        "http://localhost:5000/api/auth/register",
+        `${API_URL}/auth/register`,
         {
           method: "POST",
 
@@ -152,7 +152,7 @@ export default function Register({
       if (!response.ok || !data.success) {
         setError(
           data.message ||
-            "Registration failed. Please try again."
+            `Registration failed. Server returned ${response.status}.`
         );
 
         return;
@@ -222,7 +222,7 @@ export default function Register({
       );
 
       setError(
-        "Unable to connect to the server. Make sure your computer and phone are connected to the same Wi-Fi network."
+        "Unable to connect to the server. Please check your internet connection or try again."
       );
     } finally {
       setLoading(false);
@@ -244,7 +244,6 @@ export default function Register({
 
   return (
     <main className="min-h-screen bg-[#f7faf8] px-4 py-8 sm:px-6">
-
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl items-center gap-10 lg:grid-cols-2">
 
         {/* =====================================
@@ -252,13 +251,11 @@ export default function Register({
         ====================================== */}
 
         <section className="hidden lg:block">
-
           <div className="rounded-[2.5rem] border border-emerald-100 bg-emerald-50 p-10">
 
             {/* LOGO */}
 
             <div className="flex items-center gap-3">
-
               <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-600 text-white shadow-lg">
                 <Sprout size={25} />
               </div>
@@ -272,19 +269,15 @@ export default function Register({
                   AI Marketplace
                 </p>
               </div>
-
             </div>
 
             {/* HEADING */}
 
             <h2 className="mt-14 max-w-xl text-5xl font-black leading-tight tracking-tight text-slate-900">
-
               Join the marketplace where farmers meet{" "}
-
               <span className="text-emerald-600">
                 real buyers.
               </span>
-
             </h2>
 
             <p className="mt-5 max-w-xl text-base leading-7 text-slate-600">
@@ -296,18 +289,15 @@ export default function Register({
             {/* FEATURES */}
 
             <div className="mt-8 grid gap-3">
-
               {[
                 "Verified buyer network",
                 "AI-assisted matching",
                 "Farmer-controlled price limits",
               ].map((item) => (
-
                 <div
                   key={item}
                   className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm"
                 >
-
                   <ShieldCheck
                     className="text-emerald-600"
                     size={18}
@@ -316,15 +306,10 @@ export default function Register({
                   <span className="text-sm font-bold text-slate-800">
                     {item}
                   </span>
-
                 </div>
-
               ))}
-
             </div>
-
           </div>
-
         </section>
 
         {/* =====================================
@@ -336,17 +321,13 @@ export default function Register({
           {/* MOBILE LOGO */}
 
           <div className="mb-8 lg:hidden">
-
             <div className="flex items-center gap-3">
 
               <div className="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-600 text-white">
-
                 <Sprout size={23} />
-
               </div>
 
               <div>
-
                 <h1 className="font-black text-slate-900">
                   AgriConnect
                 </h1>
@@ -354,11 +335,9 @@ export default function Register({
                 <p className="text-xs font-bold text-emerald-600">
                   AI Marketplace
                 </p>
-
               </div>
 
             </div>
-
           </div>
 
           {/* HEADER */}
@@ -386,7 +365,6 @@ export default function Register({
             {/* FULL NAME */}
 
             <label className="block">
-
               <span className="text-xs font-bold text-slate-600">
                 Full name
               </span>
@@ -415,13 +393,11 @@ export default function Register({
                 />
 
               </div>
-
             </label>
 
             {/* EMAIL */}
 
             <label className="block">
-
               <span className="text-xs font-bold text-slate-600">
                 Email
               </span>
@@ -450,13 +426,11 @@ export default function Register({
                 />
 
               </div>
-
             </label>
 
             {/* PHONE */}
 
             <label className="block">
-
               <span className="text-xs font-bold text-slate-600">
                 Phone number
               </span>
@@ -485,13 +459,11 @@ export default function Register({
                 />
 
               </div>
-
             </label>
 
             {/* ACCOUNT TYPE */}
 
             <label className="block">
-
               <span className="text-xs font-bold text-slate-600">
                 Account type
               </span>
@@ -518,13 +490,11 @@ export default function Register({
                 </option>
 
               </select>
-
             </label>
 
             {/* TOWN */}
 
             <label className="block">
-
               <span className="text-xs font-bold text-slate-600">
                 Town
               </span>
@@ -552,13 +522,11 @@ export default function Register({
                 />
 
               </div>
-
             </label>
 
             {/* REGION */}
 
             <label className="block">
-
               <span className="text-xs font-bold text-slate-600">
                 Region
               </span>
@@ -577,13 +545,11 @@ export default function Register({
                   registrationSuccess
                 }
               />
-
             </label>
 
             {/* PASSWORD */}
 
             <label className="block">
-
               <span className="text-xs font-bold text-slate-600">
                 Password
               </span>
@@ -612,13 +578,11 @@ export default function Register({
                 />
 
               </div>
-
             </label>
 
             {/* CONFIRM PASSWORD */}
 
             <label className="block">
-
               <span className="text-xs font-bold text-slate-600">
                 Confirm password
               </span>
@@ -634,10 +598,7 @@ export default function Register({
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => {
-                    setConfirmPassword(
-                      e.target.value
-                    );
-
+                    setConfirmPassword(e.target.value);
                     clearError();
                   }}
                   placeholder="••••••••"
@@ -650,7 +611,6 @@ export default function Register({
                 />
 
               </div>
-
             </label>
 
             {/* ERROR */}
@@ -672,7 +632,6 @@ export default function Register({
                 />
 
                 <div>
-
                   <p>
                     Registration successful!
                   </p>
@@ -680,7 +639,6 @@ export default function Register({
                   <p className="mt-0.5 text-xs font-medium text-emerald-600">
                     Opening your home page...
                   </p>
-
                 </div>
 
               </div>

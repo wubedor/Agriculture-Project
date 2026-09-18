@@ -24,7 +24,8 @@ async function pickGroqModel(modelRuntime, preferredIds) {
     return { ...base, reasoning: false };
   }
   const available = await modelRuntime.getAvailable();
-  return available.find((m) => m.provider === "groq") ?? null;
+  const fallback = available.find((m) => m.provider === "groq") ?? null;
+  return fallback ? { ...fallback, reasoning: false } : null;
 }
 function seedMemory(listing, buyerDemands) {
   fs.writeFileSync(
@@ -43,30 +44,22 @@ async function createSession() {
   const preferred = ["qwen/qwen3.8-27b", "openai/gpt-oss-20b"];
   const model = await pickGroqModel(modelRuntime, preferred);
   if (!model) throw new Error("No Groq model found. Check GROQ_API_KEY.");
-  const skillFiles = [
-    "skills/buyer-search/SKILL.md",
-    "skills/price-negotiation/SKILL.md",
-    "skills/outreach-draft/SKILL.md",
-  ];
   const loader = new DefaultResourceLoader({
     cwd: AGENT_HOME,
     agentDir: getAgentDir(),
-    skillsOverride: (current) => ({
-      skills: [
-        ...current.skills,
-        ...skillFiles.map((p) => ({
-          name: path.basename(path.dirname(p)),
-          description: `Skill defined in ${p}`,
-          filePath: path.join(AGENT_HOME, p),
-          baseDir: AGENT_HOME,
-          sourceInfo: createSyntheticSourceInfo(`agent:/${p}`, {
-            source: "sdk",
-          }),
-          disableModelInvocation: false,
-        })),
-      ],
-      diagnostics: current.diagnostics,
-    }),
+    // Lean system prompt for a single-turn match: skip loading AGENTS.md,
+    // brain, skills and workspace context files so the request stays small
+    // (avoids multi-turn file reads and rate-limit waits).
+    noContextFiles: true,
+    systemPromptOverride: () =>
+      "You are the AgriConnect AI selling assistant for a farmer. " +
+      "The farmer's produce listing and all candidate buyer requests are " +
+      "provided in the user message. Match the listing against the buyers. " +
+      "Do NOT use any tools, do NOT read any files, and do NOT ask clarifying " +
+      "questions. Reply with ONLY one JSON object and nothing else, shaped as: " +
+      '{"matches":[{"buyer":"buyer name","offer":3.55,"fitScore":85,"reason":"short reason"}],' +
+      '"bestMatch":{"buyer":"buyer name","offer":3.55,"fitScore":85,"reason":"short reason"},' +
+      '"outreachDraft":"a short, warm outreach message to the best buyer"}',
   });
   await loader.reload();
   const { session } = await createAgentSession({
@@ -74,7 +67,7 @@ async function createSession() {
     model,
     modelRuntime,
     resourceLoader: loader,
-    tools: ["read", "write", "edit", "ls", "grep", "find"],
+    tools: [],
     sessionManager: SessionManager.inMemory(),
     thinkingLevel: "off",
   });
@@ -150,15 +143,20 @@ export async function runAgent(listing, buyerDemands) {
   try {
     await promptWithRetry(
       session,
-      " A farmer wants to sell produce. All listing details and buyer data are already in memory. " +
-        "1) Read memory/listings.json and memory/buyers.json. " +
-        "2) Run buyer-search: filter and score ALL eligible buyers, output the top 3 ranked best to worst. " +
-        "3) Run outreach-draft: draft a message for the best-matched buyer. " +
-        "4) Run price-negotiation: confirm the best offer is at or above minPrice. " +
-        "Do NOT ask clarifying questions — all data is complete. " +
-        "Reply with ONLY this JSON and nothing else: " +
-        '{"matches":[{"buyer":"name","offer":3.55,"fitScore":85,"reason":"..."}],' +
-        '"bestMatch":{"buyer":"name","offer":3.55,"fitScore":85,"reason":"..."},' +
+      "The farmer wants to sell produce. Match the listing against the buyer " +
+        "requests below. " +
+        "Price eligibility: a buyer must offer at or above this listing's " +
+        "minPrice. Score every eligible buyer 0-100 by fit, rank the top 3 " +
+        "best to worst, pick the best overall match, and draft a short warm " +
+        "outreach message for that best buyer. All data is complete and " +
+        "inline — do not read any files.\n\n" +
+        "LISTING:\n" +
+        JSON.stringify(listing, null, 2) +
+        "\n\nBUYER REQUESTS:\n" +
+        JSON.stringify(buyerDemands, null, 2) +
+        "\n\nReply with ONLY the JSON object and nothing else: " +
+        '{"matches":[{"buyer":"buyer name","offer":3.55,"fitScore":85,"reason":"..."}],' +
+        '"bestMatch":{"buyer":"buyer name","offer":3.55,"fitScore":85,"reason":"..."},' +
         '"outreachDraft":"the drafted message here"}',
     );
   } finally {

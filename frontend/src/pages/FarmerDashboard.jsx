@@ -247,7 +247,7 @@ export default function Dashboard({ user, onNavigate }) {
         <StatCard
           label="Avg. price uplift"
           value={`${stats.averagePriceUplift ?? 0}%`}
-          change="Based on completed deals"
+          change="Buyers offering above your min. price"
           icon={TrendingUp}
           tone="purple"
         />
@@ -495,7 +495,7 @@ export default function Dashboard({ user, onNavigate }) {
         <SectionHeader
           eyebrow="Buyer Network"
           title="Buyer matches"
-          description="Offers from buyers will appear here once the buyer offer system is connected."
+          description="Open buyer requests that match your active listings."
         />
 
         <div className="mt-6">
@@ -522,13 +522,42 @@ export default function Dashboard({ user, onNavigate }) {
 
           ) : (
 
-            buyerMatches.map((buyer) => (
+            <div className="space-y-3">
 
-              <div key={buyer.id}>
-                {/* Buyer offer UI will go here */}
-              </div>
+              {buyerMatches.map((buyer) => (
+                <div
+                  key={buyer.id}
+                  className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-blue-100 text-sm font-black text-blue-700">
+                      {buyer.buyer
+                        .split(" ")
+                        .map((word) => word[0])
+                        .join("")
+                        .slice(0, 2)
+                        .toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-800">{buyer.buyer}</p>
+                      <p className="text-xs text-slate-500">
+                        {buyer.crop}{buyer.quantity ? ` • ${buyer.quantity}${buyer.unit || ""}` : ""}
+                        {buyer.town ? ` • ${buyer.town}` : ""}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-black text-emerald-600">
+                      GH₵ {Number(buyer.offer || 0).toFixed(2)}
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      {Number(buyer.listingMinPrice || 0).toFixed(2)} min price
+                    </p>
+                  </div>
+                </div>
+              ))}
 
-            ))
+            </div>
 
           )}
 

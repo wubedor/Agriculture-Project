@@ -1,15 +1,15 @@
+
 {
-  "name": "yallist",
-  "version": "3.1.1",
-  "description": "Yet Another Linked List",
-  "main": "yallist.js",
-  "directories": {
-    "test": "test"
+  "name": "agriconnect-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "files": [
-    "yallist.js",
-    "iterator.js"
-  ],
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
     "@vitejs/plugin-react": "^5.0.4",
@@ -19,24 +19,6 @@
     "tailwindcss": "^4.1.13",
     "vite": "^7.1.5"
   },
-  "devDependencies": {
-    "tap": "^12.1.0"
-  },
-  "scripts": {
-    "test": "tap test/*.js --100",
-    "preversion": "npm test",
-    "postversion": "npm publish",
-    "postpublish": "git push origin --all; git push origin --tags",
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/isaacs/yallist.git"
-  },
-  "author": "Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)",
-  "license": "ISC",
-  "private": true,
-  "type": "module"
+  "devDependencies": {}
 }
+

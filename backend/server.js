@@ -10,8 +10,14 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const buyerRequestRoutes = require("./routes/buyerRequestRoutes");
 const agentRoutes = require("./routes/agentRoutes");
 
+// ==========================================
+// LOAD ENVIRONMENT VARIABLES
+// ==========================================
 dotenv.config();
 
+// ==========================================
+// CREATE EXPRESS APP
+// ==========================================
 const app = express();
 
 // ==========================================
@@ -20,13 +26,48 @@ const app = express();
 connectDB();
 
 // ==========================================
-// CORS
+// CORS CONFIGURATION
 // ==========================================
+
+const allowedOrigins = [
+  "https://agricproject.vercel.app",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: function (origin, callback) {
+      // Allow requests with no origin
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.log(`CORS blocked origin: ${origin}`);
+
+      return callback(new Error(`CORS blocked: ${origin}`));
+    },
+
     credentials: true,
-  }),
+
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+      "OPTIONS",
+    ],
+
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+    ],
+  })
 );
 
 // ==========================================
@@ -40,6 +81,8 @@ app.use(express.json());
 
 // Authentication
 app.use("/api/auth", authRoutes);
+
+// AI Agent
 app.use("/api/agent", agentRoutes);
 
 // Farmer produce listings
@@ -62,12 +105,24 @@ app.get("/", (req, res) => {
 });
 
 // ==========================================
+// API HEALTH CHECK
+// ==========================================
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "AgriConnect AI API is healthy",
+    environment: process.env.NODE_ENV || "development",
+  });
+});
+
+// ==========================================
 // UNKNOWN API ROUTE
 // ==========================================
 app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: "API route not found",
+    path: req.originalUrl,
   });
 });
 
@@ -76,6 +131,14 @@ app.use((req, res) => {
 // ==========================================
 app.use((error, req, res, next) => {
   console.error("Unhandled server error:", error);
+
+  // Handle CORS errors
+  if (error.message && error.message.startsWith("CORS blocked")) {
+    return res.status(403).json({
+      success: false,
+      message: "CORS policy blocked this request",
+    });
+  }
 
   res.status(500).json({
     success: false,

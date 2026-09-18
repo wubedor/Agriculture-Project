@@ -1,10 +1,10 @@
 {
-  "crop": "millet",
-  "quantity": 200,
-  "unit": "kg",
-  "minPrice": 50,
+  "crop": "maize",
+  "quantity": 10,
+  "unit": "bags",
+  "minPrice": 3.3,
   "location": {
     "town": "Koforidua",
-    "region": "Eastern"
+    "region": "Eastern Region"
   }
 }

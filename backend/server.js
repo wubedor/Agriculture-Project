@@ -82,6 +82,13 @@ app.use(express.json());
 // Authentication
 app.use("/api/auth", authRoutes);
 
+app.get("/api/auth/test", (req, res) => {
+  res.json({
+    success: true,
+    message: "Auth routes are loaded",
+  });
+});
+
 // AI Agent
 app.use("/api/agent", agentRoutes);
 

@@ -19,7 +19,6 @@ export default function SellProduce({ user, onNavigate }) {
     minPrice: "",
     town: user?.location?.town || "",
     region: user?.location?.region || "",
-    description: "",
     harvestDate: "",
     availableUntil: "",
   });
@@ -121,9 +120,6 @@ export default function SellProduce({ user, onNavigate }) {
               region: form.region.trim(),
             },
 
-            description:
-              form.description.trim(),
-
             harvestDate:
               form.harvestDate || undefined,
 
@@ -155,7 +151,6 @@ export default function SellProduce({ user, onNavigate }) {
         minPrice: "",
         town: user?.location?.town || "",
         region: user?.location?.region || "",
-        description: "",
         harvestDate: "",
         availableUntil: "",
       });
@@ -435,27 +430,6 @@ export default function SellProduce({ user, onNavigate }) {
               />
             </label>
           </div>
-        </div>
-
-        {/* ==========================================
-            DESCRIPTION
-        ========================================== */}
-
-        <div className="mt-8 border-t border-slate-100 pt-7">
-          <label className="block">
-            <span className="text-xs font-bold text-slate-600">
-              Description
-            </span>
-
-            <textarea
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              rows="4"
-              placeholder="Describe the quality, condition, packaging, pickup arrangements, etc."
-              className="mt-2 w-full resize-none rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-500"
-            />
-          </label>
         </div>
 
         {/* ==========================================

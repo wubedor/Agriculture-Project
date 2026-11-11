@@ -1,12 +1,12 @@
 [
   {
-    "id": "6ab66e67c66164fd1eceec2f",
+    "id": "6af0b4a2fca48ea81378b589",
     "name": "Abigail Appiah",
-    "crop": "cassava",
-    "pricePerKg": 80,
-    "quantity": 200,
+    "crop": "millet",
+    "pricePerKg": 24,
+    "quantity": 20,
     "town": "Accra",
     "verified": true,
-    "fitScore": 100
+    "fitScore": 96
   }
 ]

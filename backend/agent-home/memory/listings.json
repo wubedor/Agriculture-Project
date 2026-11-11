@@ -1,10 +1,10 @@
 {
-  "crop": "cassava",
-  "quantity": 100,
+  "crop": "millet",
+  "quantity": 25,
   "unit": "kg",
-  "minPrice": 80,
+  "minPrice": 24.98,
   "location": {
-    "town": "Koforidua",
-    "region": "Eastern"
+    "town": "Accra",
+    "region": "Accra"
   }
 }
